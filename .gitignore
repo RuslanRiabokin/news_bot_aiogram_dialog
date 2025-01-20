@@ -1,0 +1,10 @@
+/.idea
+*.env
+/projectenv/
+.env
+tests.py
+/__pycache__/
+pytest.ini*.pyc
+*.db
+*.zip
+/azure.txt
