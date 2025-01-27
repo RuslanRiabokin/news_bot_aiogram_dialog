@@ -6,6 +6,6 @@ tests.py
 /__pycache__/
 pytest.ini*.pyc
 *.db
+/start_bot.ps1
 *.zip
 /azure.txt
-/app.
