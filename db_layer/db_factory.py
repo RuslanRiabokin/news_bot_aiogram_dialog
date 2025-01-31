@@ -1,9 +1,10 @@
 import os
 from dotenv import load_dotenv
-from abstract_database import AbstractDatabase
-from sqlite_database import SQLiteDatabase
-from azure_sql_database import AzureSQLDatabase
-from my_sql_database import MySQLDatabase
+from db_layer.abstract_database import AbstractDatabase
+from db_layer.sql_data_service import SQLDataService
+from db_layer.sqlite_database import SQLiteDatabase
+from db_layer.azure_sql_database import AzureSQLDatabase
+from db_layer.my_sql_database import MySQLDatabase
 
 # Загружаем переменные окружения
 load_dotenv()
@@ -19,5 +20,6 @@ def get_database() -> AbstractDatabase:
     else:
         raise ValueError(f"Неизвестный тип базы данных: {db_type}")
 
-# Создаём объект базы данных
-db = get_database()
+def get_data_serice():
+    return SQLDataService(get_database())
+

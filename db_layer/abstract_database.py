@@ -33,3 +33,4 @@ class AbstractDatabase(ABC):
     async def create_tables(self):
         """Метод для створення таблиць"""
         pass
+

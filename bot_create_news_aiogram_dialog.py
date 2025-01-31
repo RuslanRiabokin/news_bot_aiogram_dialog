@@ -10,6 +10,7 @@ from aiogram_dialog.widgets.text import Const, Format
 from aiogram import Bot
 from aiogram.enums import ChatMemberStatus
 
+from db_layer.db_factory import get_data_serice
 from states_class_aiogram_dialog import MainDialogSG, SecondDialogSG
 from db_layer.database import AsyncDatabase
 
@@ -142,7 +143,7 @@ async def handle_channel_name(
             if selected_topics:
                 try:
                     # Використовуємо async with для роботи з базою даних
-                    async with AsyncDatabase() as db:
+                    async with get_data_serice() as db:
                         for topic_name in selected_topics:
                             news_id = await db.insert_news(
                                 topic_name=topic_name,

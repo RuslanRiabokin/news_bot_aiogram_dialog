@@ -2,11 +2,12 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
 import html as ht
 
 from db_layer.database import AsyncDatabase
+from db_layer.db_factory import get_data_serice
 
 
 async def new_show_topics(message: Message, user_id: int):
     """Показ підписок користувача."""
-    async with AsyncDatabase() as db:
+    async with get_data_serice() as db:
         subscriptions = await db.get_user_subscriptions(user_id)
 
         if not subscriptions:

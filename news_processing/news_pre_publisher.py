@@ -7,6 +7,7 @@ import time
 from datetime import datetime, timedelta
 
 from db_layer.database import AsyncDatabase
+from db_layer.db_factory import get_data_serice
 from news_processing.news_API import BingNewsAPI
 from news_processing.news_image_processing import main as get_image_news
 from news_processing.news_publisher import publish_news_standart, publish_news_one_picture, publish_news_digest
@@ -99,7 +100,7 @@ async def is_time_to_publish(last_published_time, publish_frequency, status, new
 
 async def time_check(bot):
     # Підключаємося до бази даних
-    async with AsyncDatabase() as db:
+    async with get_data_serice() as db:
         logging.info("перевірка новин на публікацію...")
 
         # Отримуємо всі записи, що відповідають умовам публікації
@@ -189,7 +190,7 @@ async def publish_standart_news(db, bot, topic: str, channel: str, poll: str, po
 
 
 async def publish_picture_news(bot, topic: str, channel: str, poll: str, poll_text: str,
-                               user_id: str, topic_id: str, db: AsyncDatabase) -> None:
+                               user_id: str, topic_id: str, db: get_data_serice) -> None:
     try:
         news_path, topic_url = await get_image_news(topic=topic, channel=channel)
 
@@ -213,7 +214,7 @@ async def publish_picture_news(bot, topic: str, channel: str, poll: str, poll_te
 
 async def publish_digest_news(bot, channel: str, topics: list[str], poll: str, poll_text: str,
                               user_id: str, topics_id: list) -> None:
-    async with AsyncDatabase() as db:
+    async with get_data_serice() as db:
         try:
             path_links = {}
 

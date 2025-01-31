@@ -14,6 +14,7 @@ from config import BOT_TOKEN, BASE_WEBHOOK_URL, WEB_SERVER_HOST, WEB_SERVER_PORT
 from db_layer.database import AsyncDatabase
 from concurrent.futures import ThreadPoolExecutor
 from bot_router_aiogram_dialog import register_routes
+from db_layer.db_factory import get_data_serice
 
 from news_processing.news_pre_publisher import time_check
 from news_processing.scheduler import NewsScheduler
@@ -61,7 +62,7 @@ async def scheduled_news_publishing():
     """
     try:
         logging.info("Starting news processing...")
-        async with AsyncDatabase() as db:
+        async with get_data_serice() as db:
             await db.create_db()
         bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
         last_checked_day = datetime.now().date()
@@ -69,7 +70,7 @@ async def scheduled_news_publishing():
             current_day = datetime.now().date()
 
             if current_day != last_checked_day:
-                async with AsyncDatabase() as db:
+                async with get_data_serice() as db:
                     await db.set_all_sended_status_false()
                     logging.info(f"Статус 'sended' оновлено для нового дня: {current_day}")
 

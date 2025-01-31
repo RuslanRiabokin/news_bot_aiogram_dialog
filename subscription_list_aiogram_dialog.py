@@ -5,6 +5,7 @@ from aiogram_dialog.widgets.kbd import Button, ScrollingGroup, Select, Row
 from aiogram_dialog.widgets.text import Const, Format
 
 from db_layer.database import AsyncDatabase
+from db_layer.db_factory import get_data_serice
 from states_class_aiogram_dialog import MainDialogSG, SecondDialogSG, EditSubscriptions
 
 
@@ -55,7 +56,7 @@ async def subscription_getter(dialog_manager: DialogManager, **kwargs):
     logging.info(f"Отримуємо підписки для користувача з ID {user_id}")
 
     try:
-        async with AsyncDatabase() as db:
+        async with get_data_serice() as db:
             logging.info("Відкрито підключення до бази даних.")
             subscriptions = await db.get_subscriptions(user_id)
             logging.info(f"Отримані підписки з бази даних: {subscriptions}")
@@ -111,7 +112,7 @@ async def delete_subscription_message(
 
     try:
         # Працюємо з базою даних через async with
-        async with AsyncDatabase() as db:
+        async with get_data_serice() as db:
             # Видаляємо підписку з бази даних
             await db.delete_news(item_id)
             logging.info(f"Підписка з ID {item_id} видалена з бази даних.")
@@ -138,7 +139,7 @@ async def delete_subscription_message(
 async def switch_to_edit_options(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
     """Перехід до вікна редагування підписок."""
     item_id = dialog_manager.dialog_data.get("item_id")
-    async with AsyncDatabase() as db:
+    async with get_data_serice() as db:
         sub_status = await db.get_subscription_status(item_id)
     await dialog_manager.start(state=EditSubscriptions.edit, mode=StartMode.NORMAL)
     dialog_manager.dialog_data["item_id"] = item_id

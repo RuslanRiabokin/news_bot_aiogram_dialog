@@ -6,13 +6,13 @@ from aiogram_dialog.widgets.input import TextInput
 from aiogram_dialog.widgets.kbd import Button, Row, Group
 from aiogram_dialog.widgets.text import Const, Format
 
+from db_layer.db_factory import get_data_serice
 from time_meneger import on_time_success, time_getter, date_getter,time_date_getter ,date_selection_every_day, finish_date_selection,time_selection_every_hour
 from states_class_aiogram_dialog import EditSubscriptions, SecondDialogSG
 from subscription_list_aiogram_dialog import go_start
 from custom_calendar import CustomCalendar, on_date_selected, selection_getter
 from db_layer.database import AsyncDatabase
 
-db = AsyncDatabase()
 
 
 # Обробники дій з кнопками
@@ -22,7 +22,7 @@ async def edit_publication_time(callback: CallbackQuery, button: Button, dialog_
 
 async def pause_or_run_publication(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
     sub_id = dialog_manager.dialog_data.get('item_id')
-    async with AsyncDatabase() as db:
+    async with get_data_serice() as db:
         sub_status = (await db.get_subscription_status(sub_id))[0]
         dialog_manager.dialog_data['sub_status'] = sub_status
         if sub_status == '🟢':

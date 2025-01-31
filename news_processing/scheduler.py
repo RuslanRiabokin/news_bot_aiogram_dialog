@@ -2,6 +2,7 @@ import asyncio
 from datetime import datetime, timedelta
 from aiogram import Bot
 from db_layer.database import AsyncDatabase
+from db_layer.db_factory import get_data_serice
 from news_processing.news_pre_publisher import time_check
 
 
@@ -12,7 +13,7 @@ class NewsScheduler:
         self.current_task = None
 
     async def get_next_publication_time(self):
-        async with AsyncDatabase() as db:
+        async with get_data_serice() as db:
             times_list = await db.get_last_times_list()
             if not times_list:
                 return None
