@@ -11,7 +11,7 @@ from aiogram import Bot
 from aiogram.enums import ChatMemberStatus
 
 from states_class_aiogram_dialog import MainDialogSG, SecondDialogSG
-from database import AsyncDatabase
+from db_layer.database import AsyncDatabase
 
 
 async def go_second_dialog(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):

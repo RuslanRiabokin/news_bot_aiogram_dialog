@@ -1,7 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
 import html as ht
 
-from database import AsyncDatabase
+from db_layer.database import AsyncDatabase
 
 
 async def new_show_topics(message: Message, user_id: int):

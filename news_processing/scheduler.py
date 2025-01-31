@@ -1,7 +1,7 @@
 import asyncio
 from datetime import datetime, timedelta
 from aiogram import Bot
-from database import AsyncDatabase
+from db_layer.database import AsyncDatabase
 from news_processing.news_pre_publisher import time_check
 
 

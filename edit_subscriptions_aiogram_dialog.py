@@ -10,7 +10,7 @@ from time_meneger import on_time_success, time_getter, date_getter,time_date_get
 from states_class_aiogram_dialog import EditSubscriptions, SecondDialogSG
 from subscription_list_aiogram_dialog import go_start
 from custom_calendar import CustomCalendar, on_date_selected, selection_getter
-from database import AsyncDatabase
+from db_layer.database import AsyncDatabase
 
 db = AsyncDatabase()
 

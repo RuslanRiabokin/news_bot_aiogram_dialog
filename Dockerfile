@@ -14,14 +14,14 @@ COPY . .
 # Устанавливаем зависимости из requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Устанавливаем Node.js и npx для выполнения команды playwright
-#RUN apt-get update && \
-    #apt-get install -y curl && \
-    #curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
-    #apt-get install -y nodejs
+#Устанавливаем Node.js и npx для выполнения команды playwright
+RUN apt-get update && \
+    apt-get install -y curl && \
+    curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
+    apt-get install -y nodejs
 
 # Устанавливаем playwright с зависимостями
-#RUN npx playwright install --with-deps
+RUN npx playwright install --with-deps
 
 # Указываем команду для запуска бота
 CMD ["python", "-m", "news_bot"]

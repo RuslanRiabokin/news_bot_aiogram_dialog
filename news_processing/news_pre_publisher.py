@@ -6,7 +6,7 @@ import logging
 import time
 from datetime import datetime, timedelta
 
-from database import AsyncDatabase
+from db_layer.database import AsyncDatabase
 from news_processing.news_API import BingNewsAPI
 from news_processing.news_image_processing import main as get_image_news
 from news_processing.news_publisher import publish_news_standart, publish_news_one_picture, publish_news_digest

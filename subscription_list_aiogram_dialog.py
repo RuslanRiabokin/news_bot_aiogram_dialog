@@ -4,7 +4,7 @@ from aiogram_dialog import Dialog, Window, DialogManager, StartMode
 from aiogram_dialog.widgets.kbd import Button, ScrollingGroup, Select, Row
 from aiogram_dialog.widgets.text import Const, Format
 
-from database import AsyncDatabase
+from db_layer.database import AsyncDatabase
 from states_class_aiogram_dialog import MainDialogSG, SecondDialogSG, EditSubscriptions
 
 
