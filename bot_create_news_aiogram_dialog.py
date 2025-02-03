@@ -1,18 +1,17 @@
+import logging
 import operator
 import re
-import logging
 
+from aiogram import Bot
+from aiogram.enums import ChatMemberStatus
 from aiogram.types import Message, CallbackQuery
 from aiogram_dialog import Dialog, DialogManager, Window, ShowMode, StartMode
 from aiogram_dialog.widgets.input import TextInput, ManagedTextInput
 from aiogram_dialog.widgets.kbd import Button, Row, Column, Multiselect
 from aiogram_dialog.widgets.text import Const, Format
-from aiogram import Bot
-from aiogram.enums import ChatMemberStatus
 
 from db_layer.db_factory import get_data_serice
 from states_class_aiogram_dialog import MainDialogSG, SecondDialogSG
-from db_layer.database import AsyncDatabase
 
 
 async def go_second_dialog(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):

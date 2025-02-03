@@ -1,23 +1,20 @@
-from datetime import datetime
-import logging
 import asyncio
+import logging
 import threading
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
 
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
+from aiogram.types import BotCommand
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 from aiohttp import web
-from aiogram.types import BotCommand
 
-from config import BOT_TOKEN, BASE_WEBHOOK_URL, WEB_SERVER_HOST, WEB_SERVER_PORT, WEBHOOK_PATH, WEBHOOK_SECRET
-from db_layer.database import AsyncDatabase
-from concurrent.futures import ThreadPoolExecutor
 from bot_router_aiogram_dialog import register_routes
+from config import BOT_TOKEN, BASE_WEBHOOK_URL, WEB_SERVER_HOST, WEB_SERVER_PORT, WEBHOOK_PATH, WEBHOOK_SECRET
 from db_layer.db_factory import get_data_serice
-
 from news_processing.news_pre_publisher import time_check
-from news_processing.scheduler import NewsScheduler
 
 
 async def set_bot_commands(bot: Bot):

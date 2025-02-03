@@ -3,10 +3,8 @@ from __future__ import annotations
 import asyncio
 import html
 import logging
-import time
 from datetime import datetime, timedelta
 
-from db_layer.database import AsyncDatabase
 from db_layer.db_factory import get_data_serice
 from news_processing.news_API import BingNewsAPI
 from news_processing.news_image_processing import main as get_image_news

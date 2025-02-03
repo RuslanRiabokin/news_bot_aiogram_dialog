@@ -4,10 +4,9 @@
 from __future__ import annotations
 
 import logging
+
 from aiogram import types
 from aiogram.types import FSInputFile
-
-from db_layer.database import AsyncDatabase  # Імпорт класу роботи з базою даних
 
 
 async def publish_news_standart(bot, channel_id: str, news: str, source: str,

@@ -1,16 +1,12 @@
 import logging
+
 from aiogram.types import CallbackQuery
 from aiogram_dialog import Dialog, Window, DialogManager, StartMode
 from aiogram_dialog.widgets.kbd import Button, ScrollingGroup, Select, Row
 from aiogram_dialog.widgets.text import Const, Format
 
-from db_layer.database import AsyncDatabase
 from db_layer.db_factory import get_data_serice
 from states_class_aiogram_dialog import MainDialogSG, SecondDialogSG, EditSubscriptions
-
-
-# Ініціалізація бази даних та логування
-#db = AsyncDatabase()
 
 
 async def close_second_dialog(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):

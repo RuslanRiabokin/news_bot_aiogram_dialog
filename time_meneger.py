@@ -6,7 +6,6 @@ from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.input import ManagedTextInput
 from aiogram_dialog.widgets.kbd import Button
 
-from db_layer.database import AsyncDatabase
 from db_layer.db_factory import get_data_serice
 from states_class_aiogram_dialog import EditSubscriptions
 

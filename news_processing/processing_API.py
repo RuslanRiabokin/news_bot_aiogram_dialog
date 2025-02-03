@@ -1,11 +1,12 @@
 import asyncio
 import logging
-from functools import partial
-from openai import AzureOpenAI
 import os
-from dotenv import load_dotenv
-from deep_translator import GoogleTranslator
+
 import requests
+from deep_translator import GoogleTranslator
+from dotenv import load_dotenv
+from openai import AzureOpenAI
+
 from news_processing.scrapers import WebScraper as ws
 
 

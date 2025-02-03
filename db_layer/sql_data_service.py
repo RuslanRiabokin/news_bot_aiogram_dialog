@@ -80,7 +80,7 @@ class SQLDataService:
 
     async def get_publish_date(self, sub_id):
         try:
-            return await self.db.fetchone('''
+            return await self.db.fetchall('''
                 SELECT pub_time
                 FROM Publish_date
                 WHERE sub_id = ?
@@ -127,7 +127,7 @@ class SQLDataService:
 
     async def get_publish_time(self, sub_id):
         try:
-            return await self.db.fetchone('''
+            return await self.db.fetchall('''
             SELECT pub_time
             FROM Publish_time
             WHERE sub_id = ?
@@ -252,6 +252,7 @@ class SQLDataService:
         allowed_fields = ['topic_name', 'channel_name', 'publish_frequency', 'news_type']
         if search_field and search_field not in allowed_fields:
             raise ValueError(f"Недопустиме поле для пошуку: {search_field}.")
+
 
         # Додаємо додаткову умову пошуку, якщо передано поле і значення
         query_params = [user_id]
