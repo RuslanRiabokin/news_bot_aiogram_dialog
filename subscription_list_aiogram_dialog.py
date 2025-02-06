@@ -61,8 +61,8 @@ async def subscription_getter(dialog_manager: DialogManager, **kwargs):
         # Генеруємо кнопки для кожної підписки або відображаємо повідомлення про відсутність підписок
         if subscriptions:
             buttons = [
-                (f"{topic_name} - {channel_name} {is_active}", sub_id)
-                for sub_id, topic_name, channel_name,_ , is_active in subscriptions
+                (f"{topic_name} - {channel_name} {'🟢' if is_active else '🔴'}", sub_id)
+                for sub_id, topic_name, channel_name, _, is_active in subscriptions
             ]
             logging.info(f"Кнопки, згенеровані для підписок: {buttons}")
             return {"subscriptions": buttons, "no_subscriptions": False}
@@ -140,6 +140,7 @@ async def switch_to_edit_options(callback: CallbackQuery, button: Button, dialog
     await dialog_manager.start(state=EditSubscriptions.edit, mode=StartMode.NORMAL)
     dialog_manager.dialog_data["item_id"] = item_id
     dialog_manager.dialog_data["sub_status"] = sub_status[0]
+
 
 # Визначення діалогу з підписками
 current_subscriptions_dialog = Dialog(

@@ -2,6 +2,8 @@ import logging
 from db_layer.abstract_database import AbstractDatabase
 from typing import List, Tuple
 
+from datetime import datetime, timedelta
+
 logging.basicConfig(level=logging.INFO)
 
 
@@ -149,22 +151,20 @@ class SQLDataService:
 
     async def insert_news(self, topic_name, channel_name, user_id, news_type='standart',
                           publish_frequency='1h', language_code='ua', add_poll='no',
-                          poll_text='a, b, c', is_active='🟢'):
+                          poll_text='a, b, c', is_active='yes'):
         """Додає новий запис у таблицю News з часом на 1 годину раніше від поточного."""
         if not all([topic_name, channel_name, user_id]):
             raise ValueError("Тема, канал та user_id є обов'язковими.")
-
+        last_pub_time = (datetime.utcnow() - timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')
         channel_url = channel_name
         try:
-            cursor = await self.db.execute('''
+            news_id = await self.db.execute('''
             INSERT INTO News (topic_name, channel_name, user_id, publish_frequency,
              news_type, channel_url, language_code, add_poll, poll_text, is_active, last_pub_time)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now', '-1 hour'))
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (topic_name, channel_name, user_id, publish_frequency, news_type,
-                  channel_url, language_code, add_poll, poll_text, is_active))
-            
+                  channel_url, language_code, add_poll, poll_text, is_active, last_pub_time))
 
-            news_id = cursor.lastrowid
             return news_id
 
         except Exception as e:
@@ -199,7 +199,7 @@ class SQLDataService:
         query = """
             SELECT id, topic_name, channel_name, last_pub_time, is_active
             FROM News
-            WHERE user_id = ? AND (is_active = '🟢' OR is_active = 'pause')
+            WHERE user_id = ? AND (is_active = 'yes' OR is_active = 'pause')
         """
         try:
             subscriptions = await self.db.fetchall(query, (user_id,))
@@ -235,11 +235,11 @@ class SQLDataService:
             'active': '''
                 SELECT id, topic_name, channel_name, publish_frequency, news_type, is_active, last_pub_time, add_poll
                 FROM News
-                WHERE user_id = ? AND is_active = '🟢' ''',
+                WHERE user_id = ? AND is_active = 'yes' ''',
             'inactive': '''
                 SELECT id, topic_name, channel_name, publish_frequency, news_type, is_active, last_pub_time, add_poll
                 FROM News
-                WHERE user_id = ? AND is_active = '🔴' '''
+                WHERE user_id = ? AND is_active = 'no' '''
         }
 
         # Отримуємо відповідний SQL-запит для статусу

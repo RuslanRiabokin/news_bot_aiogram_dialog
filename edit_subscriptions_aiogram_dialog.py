@@ -25,11 +25,11 @@ async def pause_or_run_publication(callback: CallbackQuery, button: Button, dial
     async with get_data_serice() as db:
         sub_status = (await db.get_subscription_status(sub_id))[0]
         dialog_manager.dialog_data['sub_status'] = sub_status
-        if sub_status == '🟢':
+        if sub_status == 'yes':
             await db.set_subscription_status(status='pause', sub_id=sub_id)
             await callback.message.answer("⏸ Публікацію призупинено.")
         elif sub_status == 'pause':
-            await db.set_subscription_status(status='🟢', sub_id=sub_id)
+            await db.set_subscription_status(status='yes', sub_id=sub_id)
             await callback.message.answer("▶ Публікація розпочата.")
         else:
             logging.error(f'Неправильний статус новини {sub_status}')
@@ -41,7 +41,7 @@ async def dialog_data_getter(dialog_manager: DialogManager, **kwargs):
     """Передаёт статус публикации в данные для отображения кнопки."""
     sub_id = dialog_manager.dialog_data.get('item_id')
     sub_status = dialog_manager.dialog_data.get("sub_status")  # Статус по умолчанию
-    sub_status_text = ("Розпочати публікацію ▶" if sub_status == "🟢" else "Призупинити публікацію ⏸")
+    sub_status_text = ("Розпочати публікацію ▶" if sub_status == "yes" else "Призупинити публікацію ⏸")
     return {"publication_status": sub_status, "publication_status_text": sub_status_text}
 
 

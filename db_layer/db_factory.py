@@ -14,9 +14,17 @@ def get_database() -> AbstractDatabase:
     if db_type == "sqlite":
         return SQLiteDatabase("database.db")
     elif db_type == "azure_sql":
-        return AzureSQLDatabase("azure_connection_string")
+        connection_string = os.getenv("AZURE_SQL_CONNECTION_STRING")
+        if not connection_string:
+            raise ValueError("Строка подключения AZURE_SQL_CONNECTION_STRING не найдена в переменных окружения.")
+        return AzureSQLDatabase(connection_string)
     elif db_type == "mysql":
-        return MySQLDatabase("mysql_connection_string")
+        host = os.getenv("MYSQL_HOST")
+        port = int(os.getenv("MYSQL_PORT", 3306))
+        user = os.getenv("MYSQL_USER")
+        password = os.getenv("MYSQL_PASSWORD")
+        database = os.getenv("MYSQL_DATABASE")
+        return MySQLDatabase(host, port, user, password, database)
     else:
         raise ValueError(f"Неизвестный тип базы данных: {db_type}")
 

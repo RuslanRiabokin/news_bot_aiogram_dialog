@@ -22,7 +22,7 @@ class SQLiteDatabase(AbstractDatabase):
         try:
             async with self.connection.execute(query, params) as cursor:
                 await self.connection.commit()
-                return cursor
+                return cursor.lastrowid
         except Exception as e:
             logging.error(f"SQLite execute error: {e}")
 
