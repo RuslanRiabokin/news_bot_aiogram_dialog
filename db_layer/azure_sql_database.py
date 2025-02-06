@@ -17,11 +17,7 @@ class AzureSQLDatabase(AbstractDatabase):
         try:
             if not self.connection_string:
                 raise ValueError("The connection string is empty.")
-
-            logging.info(f"Attempting to connect to Azure SQL using connection string: {self.connection_string}")
-
             self.connection = pyodbc.connect(self.connection_string, autocommit=True)
-            logging.info("Connection to Azure SQL established successfully.")
         except pyodbc.Error as db_exc:
             logging.error("Database-specific error occurred while connecting to Azure SQL: %s", db_exc, exc_info=True)
         except Exception as exc:
@@ -79,53 +75,6 @@ class AzureSQLDatabase(AbstractDatabase):
             return None
 
 
-    """async def create_tables(self):
-        #Создание таблиц.
-        try:
-            await self.execute('''
-        IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'News')
-        BEGIN
-            CREATE TABLE News (
-                id INT IDENTITY(1,1) PRIMARY KEY,
-                topic_name NVARCHAR(MAX) NOT NULL,
-                channel_name NVARCHAR(255) NOT NULL,
-                channel_url NVARCHAR(MAX) NOT NULL,
-                last_pub_time NVARCHAR(255) NOT NULL,
-                user_id NVARCHAR(255) NOT NULL,
-                news_type NVARCHAR(255) NOT NULL,
-                publish_frequency NVARCHAR(255) NOT NULL,
-                language_code NVARCHAR(255) NOT NULL,
-                add_poll NVARCHAR(255) NOT NULL,
-                is_active BIT NOT NULL,  -- Логічний тип (0 або 1)
-                poll_text NVARCHAR(MAX) NOT NULL
-            );
-        END;
-            ''')
-            await self.execute('''
-            IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Publish_date')
-        BEGIN
-            CREATE TABLE Publish_date (
-                id INT IDENTITY(1,1) PRIMARY KEY,
-                sub_id INT NOT NULL,
-                pub_time NVARCHAR(255) NOT NULL,
-                FOREIGN KEY (sub_id) REFERENCES News(id) ON DELETE CASCADE
-            );
-        END;
-            ''')
-            await self.execute('''
-            IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Publish_time')
-        BEGIN
-            CREATE TABLE Publish_time (
-                id INT IDENTITY(1,1) PRIMARY KEY,
-                sub_id INT NOT NULL,
-                pub_time NVARCHAR(255) NOT NULL,
-                sended INT NOT NULL DEFAULT 0,
-                FOREIGN KEY (sub_id) REFERENCES News(id) ON DELETE CASCADE
-            );
-        END;
-            ''')
-        except Exception as e:
-            logging.error(f"Error creating tables in Azure SQL: {e}")"""
 
     async def create_tables(self):
         """Создание таблиц в базе данных."""

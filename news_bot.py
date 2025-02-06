@@ -107,7 +107,6 @@ def main_bot():
         SimpleRequestHandler(dispatcher=dp, bot=bot).register(app, path=WEBHOOK_PATH)
         setup_application(app, dp, bot=bot)
 
-        logging.info(f"Server started at http://{WEB_SERVER_HOST}:{WEB_SERVER_PORT}")
         web.run_app(app, host=WEB_SERVER_HOST, port=WEB_SERVER_PORT)
 
     except Exception as e:

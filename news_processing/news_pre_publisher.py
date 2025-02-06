@@ -99,7 +99,6 @@ async def is_time_to_publish(last_published_time, publish_frequency, status, new
 async def time_check(bot):
     # Підключаємося до бази даних
     async with get_data_serice() as db:
-        logging.info("перевірка новин на публікацію...")
 
         # Отримуємо всі записи, що відповідають умовам публікації
         data = await db.get_channels_for_publishing()

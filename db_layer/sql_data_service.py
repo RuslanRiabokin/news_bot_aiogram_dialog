@@ -1,4 +1,5 @@
 import logging
+import pytz
 from db_layer.abstract_database import AbstractDatabase
 from typing import List, Tuple
 
@@ -155,7 +156,10 @@ class SQLDataService:
         """Додає новий запис у таблицю News з часом на 1 годину раніше від поточного."""
         if not all([topic_name, channel_name, user_id]):
             raise ValueError("Тема, канал та user_id є обов'язковими.")
-        last_pub_time = (datetime.utcnow() - timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')
+
+        kyiv_tz = pytz.timezone('Europe/Kyiv')
+        last_pub_time = (datetime.now(kyiv_tz) - timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')
+
         channel_url = channel_name
         try:
             news_id = await self.db.execute('''
@@ -261,9 +265,6 @@ class SQLDataService:
             query += f" AND {search_field} LIKE ?"
             query_params.append(f"%{search_value}%")
 
-        # Логування SQL-запиту
-        logging.info(f"Виконання SQL-запиту: {query} з параметрами: {tuple(query_params)}")
-
         # Виконуємо SQL-запит та повертаємо результат
         try:
             result = await self.db.fetchall(query, tuple(query_params))
@@ -306,10 +307,12 @@ class SQLDataService:
 
     async def update_last_published_time(self, topic_id):
         """Оновлює час останньої публікації новини."""
+        kyiv_tz = pytz.timezone('Europe/Kyiv')
+        last_pub_time = datetime.now(kyiv_tz).strftime('%Y-%m-%d %H:%M:%S')
         await self.db.execute('''
         UPDATE News
-        SET last_pub_time = datetime('now', 'localtime')
+        SET last_pub_time = ?
         WHERE id = ?
-        ''', (topic_id,))
+        ''', (last_pub_time, topic_id))
        
 
