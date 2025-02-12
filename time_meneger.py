@@ -17,7 +17,7 @@ async def on_time_success(message: Message, widget: ManagedTextInput,
     sub_id = dialog_manager.dialog_data.get('item_id', None)
 
     if isinstance(text, str):
-        text = re.split(r"[ ]+", text)
+        text = re.split(",", text)
         text = [t.strip() for t in text if t.strip()]
 
 
@@ -43,7 +43,7 @@ async def on_time_success(message: Message, widget: ManagedTextInput,
             else:
                 await message.answer(
                     "Ви ввели невірний формат часу."
-                    "Формат має бути HH:MM (наприклад, '14:30' чи 14:45')."
+                    "Формат має бути HH:MM (наприклад, '14:30' чи '14,30, 14:45')."
                 )
                 return
         # Якщо час містить кому або інший неприпустимий знак, виправляємо
@@ -52,14 +52,14 @@ async def on_time_success(message: Message, widget: ManagedTextInput,
             if not re.match(time_pattern, time):
                 await message.answer(
                     "Ви ввели невірний формат часу."
-                    "Формат має бути HH:MM (наприклад, '14:30' чи 14:45')."
+                    "Формат має бути HH:MM (наприклад, '14:30' чи '14,30, 14:45')."
                 )
                 return
         # Якщо час не відповідає жодному формату
         elif not re.match(time_pattern, time):
             await message.answer(
                 "Ви ввели невірний формат часу."
-                "Формат має бути HH:MM (наприклад, '14:30' чи 14:45')."
+                "Формат має бути HH:MM (наприклад, '14:30' чи '14,30, 14:45')."
             )
             return
         corrected_times.append(time)
@@ -71,7 +71,7 @@ async def on_time_success(message: Message, widget: ManagedTextInput,
         corrected_times = [t for t in corrected_times if t not in db_times]
 
         for pub_time in pub_times:
-            if pub_time[0] in ['every--hour', 'every-2-hour', 'every-3-hour']:
+            if pub_time[0] in ['every--hour', 'every-3-hour', 'every-6-hour']:
                 await db.delete_times(sub_id)
 
         corrected_times = sorted(corrected_times, key=lambda t: datetime.strptime(t, "%H:%M"))
@@ -97,10 +97,10 @@ async def time_getter(dialog_manager: DialogManager, **_):
         time = await db.get_publish_time(sub_id)  # [('every--hour',)]
     if time[0][0] == 'every--hour':
         return {'time': 'Кожну годину'}
-    elif time[0][0] == 'every-2-hour':
-        return {'time': 'Кожні 2 години'}
     elif time[0][0] == 'every-3-hour':
         return {'time': 'Кожні 3 години'}
+    elif time[0][0] == 'every-6-hour':
+        return {'time': 'Кожні 6 годин'}
     else:
         return {"time": ", ".join(t[0] for t in time)}
 

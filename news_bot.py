@@ -1,20 +1,24 @@
-import asyncio
-import logging
-import threading
-from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
+import logging
+import asyncio
+import threading
 
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-from aiogram.types import BotCommand
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 from aiohttp import web
+from aiogram.types import BotCommand
 
-from bot_router_aiogram_dialog import register_routes
 from config import BOT_TOKEN, BASE_WEBHOOK_URL, WEB_SERVER_HOST, WEB_SERVER_PORT, WEBHOOK_PATH, WEBHOOK_SECRET
-from db_layer.db_factory import get_data_serice
+#from database import AsyncDatabase
+from concurrent.futures import ThreadPoolExecutor
+from bot_router_aiogram_dialog import register_routes
+
 from news_processing.news_pre_publisher import time_check
+from news_processing.scheduler import NewsScheduler
+from db_layer.db_factory import get_data_serice
+
 
 
 async def set_bot_commands(bot: Bot):
@@ -85,11 +89,6 @@ def start_scheduled_news_publishing():
     """Запуск функції публікації новин в окремому потоці."""
     asyncio.run(scheduled_news_publishing())
 
-async def health_check(request):
-    """
-    Responds with HTTP 200 to indicate the app is healthy.
-    """
-    return web.Response(status=200, text="Healthy")
 
 def main_bot():
     try:
@@ -102,11 +101,11 @@ def main_bot():
         app["bot"] = bot
         app.on_startup.append(on_startup)
         app.on_shutdown.append(on_shutdown)
-        app.router.add_get("/health", health_check)
 
         SimpleRequestHandler(dispatcher=dp, bot=bot).register(app, path=WEBHOOK_PATH)
         setup_application(app, dp, bot=bot)
 
+        logging.info(f"Server started at http://{WEB_SERVER_HOST}:{WEB_SERVER_PORT}")
         web.run_app(app, host=WEB_SERVER_HOST, port=WEB_SERVER_PORT)
 
     except Exception as e:

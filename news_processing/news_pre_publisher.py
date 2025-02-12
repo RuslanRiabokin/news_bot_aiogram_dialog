@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import html
 import logging
+import time
 from datetime import datetime, timedelta
 
 from db_layer.db_factory import get_data_serice
@@ -26,7 +27,7 @@ async def is_time_to_publish(last_published_time, publish_frequency, status, new
         if not pub_dates and not pub_times:
             return False
 
-        if status != 'yes':
+        if status != '🟢':
             return False
 
         is_time = False  # Стандартно ініціалізуємо як False
@@ -39,10 +40,10 @@ async def is_time_to_publish(last_published_time, publish_frequency, status, new
                 if pub_date[0] == 'everyday':
                     if pub_time[0] == 'every--hour':
                         is_time = now - last_pub_time >= timedelta(hours=1)
-                    elif pub_time[0] == 'every-2-hour':
-                        is_time = now - last_pub_time >= timedelta(hours=2)
                     elif pub_time[0] == 'every-3-hour':
                         is_time = now - last_pub_time >= timedelta(hours=3)
+                    elif pub_time[0] == 'every-6-hour':
+                        is_time = now - last_pub_time >= timedelta(hours=6)
                     else:
                         if sended[0] == 0:
                             hour, minute = map(int, pub_time[0].split(':'))
@@ -56,10 +57,10 @@ async def is_time_to_publish(last_published_time, publish_frequency, status, new
                     if pub_date_obj <= now.date():
                         if pub_time[0] == 'every--hour':
                             is_time = now - last_pub_time >= timedelta(hours=1)
-                        elif pub_time[0] == 'every-2-hour':
-                            is_time = now - last_pub_time >= timedelta(hours=2)
                         elif pub_time[0] == 'every-3-hour':
                             is_time = now - last_pub_time >= timedelta(hours=3)
+                        elif pub_time[0] == 'every-6-hour':
+                            is_time = now - last_pub_time >= timedelta(hours=6)
                         else:
                             if sended[0] == 0:
                                 hour, minute = map(int, pub_time[0].split(':'))
@@ -81,19 +82,7 @@ async def is_time_to_publish(last_published_time, publish_frequency, status, new
     except Exception as e:
         print(f"Помилка під час перевірки часу публікації (ID {news_id}): {e}")
         return False
-    # number = int(publish_frequency.rstrip('hm'))
-    # print("перевірка новин на публікацію")
-    # timestamp = time.time()
-    # dt_from_timestamp = datetime.fromtimestamp(timestamp)
-    # dt_from_string = datetime.strptime(last_published_time, "%Y-%m-%d %H:%M:%S")
-    # time_difference = dt_from_timestamp - dt_from_string
-    # hours_difference = time_difference.total_seconds() / 3600
-    # is_time = hours_difference > int(number)
-    # is_time_to_delete = hours_difference > 24
-    #
-    # if status == 'no' and is_time_to_delete:
-    #     await db.delete_deactivated_news(news_id)
-    # return is_time
+
 
 
 async def time_check(bot):
@@ -123,7 +112,7 @@ async def time_check(bot):
             # Перевіряємо, чи час публікації відповідає частоті публікації
             is_time = await is_time_to_publish(last_pub_time, publish_frequency, status, news_id=topic_id, db=db)
 
-            if is_time and status == 'yes':
+            if is_time and status == '🟢':
                 # Якщо тип новини - standart, викликаємо функцію publish_standart_news
                 if news_type == 'standart':
                     await publish_standart_news(db, bot, topic=topic, channel=channel, poll=poll,
@@ -187,7 +176,7 @@ async def publish_standart_news(db, bot, topic: str, channel: str, poll: str, po
 
 
 async def publish_picture_news(bot, topic: str, channel: str, poll: str, poll_text: str,
-                               user_id: str, topic_id: str, db: get_data_serice) -> None:
+                               user_id: str, topic_id: str, db: AsyncDatabase) -> None:
     try:
         news_path, topic_url = await get_image_news(topic=topic, channel=channel)
 
