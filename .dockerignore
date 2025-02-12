@@ -3,7 +3,7 @@
 /projectenv/
 .env
 tests.py
-/__pycache__/
+*/__pycache__/
 pytest.ini*.pyc
 *.db
 /start_bot.ps1

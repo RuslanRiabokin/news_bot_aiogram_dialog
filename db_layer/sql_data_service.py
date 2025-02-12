@@ -148,7 +148,11 @@ class SQLDataService:
         except Exception as e:
             logging.error(f"Помилка видалення часів: {e}")
             raise
-        
+
+    def _get_last_published_time(self, adjust_hours: int = 0) -> str:
+        """Повертає поточний час у часовому поясі Києва з корекцією."""
+        kyiv_tz = pytz.timezone('Europe/Kyiv')
+        return (datetime.now(kyiv_tz) + timedelta(hours=adjust_hours)).strftime('%Y-%m-%d %H:%M:%S')
 
     async def insert_news(self, topic_name, channel_name, user_id, news_type='standart',
                           publish_frequency='1h', language_code='ua', add_poll='no',
@@ -157,8 +161,7 @@ class SQLDataService:
         if not all([topic_name, channel_name, user_id]):
             raise ValueError("Тема, канал та user_id є обов'язковими.")
 
-        kyiv_tz = pytz.timezone('Europe/Kyiv')
-        last_pub_time = (datetime.now(kyiv_tz) - timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')
+        last_pub_time = self._get_last_published_time(-1)  # Час на 1 годину раніше
 
         channel_url = channel_name
         try:
@@ -307,8 +310,7 @@ class SQLDataService:
 
     async def update_last_published_time(self, topic_id):
         """Оновлює час останньої публікації новини."""
-        kyiv_tz = pytz.timezone('Europe/Kyiv')
-        last_pub_time = datetime.now(kyiv_tz).strftime('%Y-%m-%d %H:%M:%S')
+        last_pub_time = self._get_last_published_time()  # Поточний час
         await self.db.execute('''
         UPDATE News
         SET last_pub_time = ?

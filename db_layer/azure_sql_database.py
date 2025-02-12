@@ -28,7 +28,6 @@ class AzureSQLDatabase(AbstractDatabase):
         if self.connection:
             try:
                 self.connection.close()
-                logging.info("Azure SQL connection closed successfully.")
             except Exception as exc:
                 logging.error("Failed to close Azure SQL connection. Details: %s", exc, exc_info=True)
 
