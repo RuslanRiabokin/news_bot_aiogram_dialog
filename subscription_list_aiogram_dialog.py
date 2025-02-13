@@ -40,7 +40,6 @@ async def handle_subscription_click(callback: CallbackQuery, widget: Select, dia
         topic_name = selected_subscription[1]  # Назва підписки
         dialog_manager.dialog_data["item_id"] = item_id
         dialog_manager.dialog_data["topic_name"] = topic_name
-        logging.info(f"Обрана підписка: {selected_subscription}")
     else:
         logging.error(f"Підписку з id {item_id} не знайдено!")
 
@@ -50,13 +49,10 @@ async def handle_subscription_click(callback: CallbackQuery, widget: Select, dia
 async def subscription_getter(dialog_manager: DialogManager, **kwargs):
     """Отримує підписки для користувача та логує їх."""
     user_id = dialog_manager.event.from_user.id
-    logging.info(f"Отримуємо підписки для користувача з ID {user_id}")
 
     try:
         async with get_data_serice() as db:
-            logging.info("Відкрито підключення до бази даних.")
             subscriptions = await db.get_subscriptions(user_id)
-            logging.info(f"Отримані підписки з бази даних: {subscriptions}")
             dialog_manager.dialog_data["subscriptions"] = subscriptions
 
         # Генеруємо кнопки для кожної підписки або відображаємо повідомлення про відсутність підписок
@@ -65,7 +61,6 @@ async def subscription_getter(dialog_manager: DialogManager, **kwargs):
                 (f"{topic_name} - {channel_name} {is_active}", sub_id)
                 for sub_id, topic_name, channel_name, _, is_active in subscriptions
             ]
-            logging.info(f"Кнопки, згенеровані для підписок: {buttons}")
             return {"subscriptions": buttons, "no_subscriptions": False}
         else:
             logging.info("Користувач не має активних підписок.")
@@ -79,7 +74,6 @@ async def second_window_getter(dialog_manager: DialogManager, **kwargs):
     """Передає item_id та topic_name з контексту для відображення у другому вікні."""
     item_id = dialog_manager.dialog_data.get("item_id", "Невідома підписка")
     topic_name = dialog_manager.dialog_data.get("topic_name", "Невідома підписка")
-    logging.info(f"Друге вікно: item_id={item_id}, topic_name={topic_name}")  # Логуємо значення
     return {"item_id": item_id, "topic_name": topic_name}
 
 

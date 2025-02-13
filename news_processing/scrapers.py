@@ -26,7 +26,6 @@ class WebScraper:
         :return: Extracted content as string
         """
         try:
-            logging.info(f'Scraping static site: {url}')
             response = requests.get(url, headers=headers, timeout=timeout)
             response.raise_for_status()
             soup = BeautifulSoup(response.text, parser)
@@ -66,7 +65,6 @@ class WebScraper:
         :return: Extracted content as string
         """
         async with async_playwright() as p:
-            logging.info(f'Scraping dynamic site: {url}')
             browser = await p.chromium.launch(headless=headless)
             context = await browser.new_context(proxy=proxy) if proxy else await browser.new_context()
             page = await context.new_page()
@@ -102,7 +100,6 @@ class WebScraper:
         for selector in selectors:
             try:
                 await page.click(selector, timeout=3000)
-                logging.info(f"Closed popup using selector: {selector}")
             except:
                 logging.debug(f"No popup found for selector: {selector}")
 
