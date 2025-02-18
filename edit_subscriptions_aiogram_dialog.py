@@ -64,7 +64,7 @@ select_language_window = Window(
     Group(
         Row(
             Button(Const("🇺🇦 Українська"), id="uk", on_click=on_language_selected),
-            Button(Const("🏴󠁧󠁢󠁥󠁮󠁧󠁿 English"), id="en", on_click=on_language_selected),
+            Button(Const("🇬🇧󠁧󠁢󠁥󠁮󠁧󠁿 English"), id="en", on_click=on_language_selected),
         ),
         Row(
             Button(Const("🇷🇺 Русский"), id="ru", on_click=on_language_selected),
