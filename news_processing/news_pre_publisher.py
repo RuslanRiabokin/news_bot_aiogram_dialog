@@ -81,19 +81,6 @@ async def is_time_to_publish(last_published_time, publish_frequency, status, new
     except Exception as e:
         print(f"Помилка під час перевірки часу публікації (ID {news_id}): {e}")
         return False
-    # number = int(publish_frequency.rstrip('hm'))
-    # print("перевірка новин на публікацію")
-    # timestamp = time.time()
-    # dt_from_timestamp = datetime.fromtimestamp(timestamp)
-    # dt_from_string = datetime.strptime(last_published_time, "%Y-%m-%d %H:%M:%S")
-    # time_difference = dt_from_timestamp - dt_from_string
-    # hours_difference = time_difference.total_seconds() / 3600
-    # is_time = hours_difference > int(number)
-    # is_time_to_delete = hours_difference > 24
-    #
-    # if status == 'no' and is_time_to_delete:
-    #     await db.delete_deactivated_news(news_id)
-    # return is_time
 
 
 async def time_check(bot):
