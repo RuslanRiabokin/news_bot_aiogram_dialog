@@ -46,8 +46,18 @@ async def handle_subscription_click(callback: CallbackQuery, widget: Select, dia
     await dialog_manager.switch_to(state=SecondDialogSG.second)
 
 
+# Відповідність тем з емодзі
+TOPIC_EMOJIS = {
+    "IT": "📱",
+    "Дизайн": "🎨",
+    "Наука": "📖",
+    "Суспільство": "👥",
+    "Культура": "🗺",
+    "Мистецтво": "🖌",
+}
+
 async def subscription_getter(dialog_manager: DialogManager, **kwargs):
-    """Отримує підписки для користувача та логує їх."""
+    """Отримує підписки для користувача та додає емодзі до назв тем."""
     user_id = dialog_manager.event.from_user.id
 
     try:
@@ -55,15 +65,14 @@ async def subscription_getter(dialog_manager: DialogManager, **kwargs):
             subscriptions = await db.get_subscriptions(user_id)
             dialog_manager.dialog_data["subscriptions"] = subscriptions
 
-        # Генеруємо кнопки для кожної підписки або відображаємо повідомлення про відсутність підписок
+        # Генеруємо кнопки для підписок з емодзі
         if subscriptions:
             buttons = [
-                (f"{topic_name} - {channel_name} {is_active}", sub_id)
+                (f"{TOPIC_EMOJIS.get(topic_name, '')} {topic_name} - {channel_name} {'🟢' if is_active else '🔴'}", sub_id)
                 for sub_id, topic_name, channel_name, _, is_active in subscriptions
             ]
             return {"subscriptions": buttons, "no_subscriptions": False}
         else:
-            logging.info("Користувач не має активних підписок.")
             return {"subscriptions": [], "no_subscriptions": True}
     except Exception as e:
         logging.error(f"Помилка під час отримання підписок: {e}")
@@ -71,10 +80,15 @@ async def subscription_getter(dialog_manager: DialogManager, **kwargs):
 
 
 async def second_window_getter(dialog_manager: DialogManager, **kwargs):
-    """Передає item_id та topic_name з контексту для відображення у другому вікні."""
+    """Отримує інформацію про вибрану підписку та додає емодзі до назв тем."""
     item_id = dialog_manager.dialog_data.get("item_id", "Невідома підписка")
-    topic_name = dialog_manager.dialog_data.get("topic_name", "Невідома підписка")
-    return {"item_id": item_id, "topic_name": topic_name}
+    topic_name = dialog_manager.dialog_data.get("topic_name", "Невідома тема")
+
+    # Додаємо емодзі до теми
+    topic_name_with_emoji = f"{TOPIC_EMOJIS.get(topic_name, '')} {topic_name}"
+
+    return {"item_id": item_id, "topic_name": topic_name_with_emoji}
+
 
 
 async def back_to_subscriptions(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
@@ -143,7 +157,7 @@ async def run_publication(callback: CallbackQuery, button: Button, dialog_manage
         if sub_status != 'pause':
             await callback.message.answer("Публікація вже розпочата")
         else:
-            await db.set_subscription_status(status='🟢', sub_id=sub_id)
+            await db.set_subscription_status(status='yes', sub_id=sub_id)
             await callback.message.answer("▶ Публікація розпочата.")
 
 async def stop_publication(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
@@ -151,7 +165,7 @@ async def stop_publication(callback: CallbackQuery, button: Button, dialog_manag
     async with get_data_serice() as db:
         sub_status = (await db.get_subscription_status(sub_id))[0]
         dialog_manager.dialog_data['sub_status'] = sub_status
-        if sub_status != '🟢':
+        if sub_status != 'yes':
             await callback.message.answer("Публікація вже призупинена")
         else:
             await db.set_subscription_status(status='pause', sub_id=sub_id)

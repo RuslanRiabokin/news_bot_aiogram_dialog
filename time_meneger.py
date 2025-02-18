@@ -17,7 +17,7 @@ async def on_time_success(message: Message, widget: ManagedTextInput,
     sub_id = dialog_manager.dialog_data.get('item_id', None)
 
     if isinstance(text, str):
-        text = re.split(",", text)
+        text = re.split(r"[ ]+", text)
         text = [t.strip() for t in text if t.strip()]
 
 

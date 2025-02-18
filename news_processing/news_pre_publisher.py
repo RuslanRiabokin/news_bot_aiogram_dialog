@@ -27,7 +27,7 @@ async def is_time_to_publish(last_published_time, publish_frequency, status, new
         if not pub_dates and not pub_times:
             return False
 
-        if status != '🟢':
+        if status != 'yes':
             return False
 
         is_time = False  # Стандартно ініціалізуємо як False
@@ -112,7 +112,7 @@ async def time_check(bot):
             # Перевіряємо, чи час публікації відповідає частоті публікації
             is_time = await is_time_to_publish(last_pub_time, publish_frequency, status, news_id=topic_id, db=db)
 
-            if is_time and status == '🟢':
+            if is_time and status == 'yes':
                 # Якщо тип новини - standart, викликаємо функцію publish_standart_news
                 if news_type == 'standart':
                     await publish_standart_news(db, bot, topic=topic, channel=channel, poll=poll,
