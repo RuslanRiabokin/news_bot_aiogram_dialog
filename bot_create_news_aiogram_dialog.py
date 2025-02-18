@@ -14,6 +14,7 @@ from db_layer.db_factory import get_data_serice
 from states_class_aiogram_dialog import MainDialogSG, SecondDialogSG
 
 
+
 async def go_second_dialog(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
     """Перемикається на перше вікно другого діалогу"""
     await dialog_manager.start(state=SecondDialogSG.first)
@@ -197,18 +198,17 @@ start_dialog = Dialog(
         state=MainDialogSG.start
     ),
     Window(
-        Const('<b>Ви знаходитесь в меню Підписок</b>\n'),
-        Const('Ви можете перемикатися між вікнами поточного діалогу або перейти до нового 👇'),
+        Const('Тут ви можете керувати своїми <b>Підписами:</b>\n'),
         Row(
-            Button(Const('Створити підписку'), id='w_second', on_click=switch_to_first_lists),
+            Button(Const('➕ Додати підписку'), id='w_second', on_click=switch_to_first_lists),
         ),
         Row(
-            Button(Const('Переглянути Список підписок ▶️'), id='go_second_dialog', on_click=go_second_dialog),
+            Button(Const('🗒 Мої підписки'), id='go_second_dialog', on_click=go_second_dialog),
         ),
         state=MainDialogSG.menu
     ),
     Window(
-        Const('<b>Оберіть теми новин:</b>'),
+        Const('Обрати тему <b>Підписки:</b>'),
         Column(
             Multiselect(
                 checked_text=Format('✔️ {item[0]}'),
@@ -218,15 +218,17 @@ start_dialog = Dialog(
                 items="topics",
             ),
         ),
-        Row(Button(Const('Підтвердити вибрані новини 📝'),
-                   id='confirm_topics', on_click=confirm_selected_topics)),
-        Row(Button(Const('Введіть свою новину 📝'),
+        Row(Button(Const('📝 Введіть свою новину'),
                    id='enter_news', on_click=lambda callback, button,
                     dialog_manager: dialog_manager.switch_to(
                     state=MainDialogSG.enter_news))),
+
+        Row(Button(Const('✅ Підтвердити вибрані новини'),
+                   id='confirm_topics', on_click=confirm_selected_topics)),
+
         Row(
-            Button(Const('У 2-й діалог ▶️'), id='go_second_dialog', on_click=go_second_dialog),
-            Button(Const('Скасувати'), id='cancel_to_subscription', on_click=return_to_subscription)
+            Button(Const('🗒 Мої підписки'), id='go_second_dialog', on_click=go_second_dialog),
+            Button(Const('🔙'), id='cancel_to_subscription', on_click=return_to_subscription)
         ),
         state=MainDialogSG.new_subscription,
         getter=get_topics

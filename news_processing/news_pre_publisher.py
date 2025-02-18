@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import html
 import logging
+import time
 from datetime import datetime, timedelta
 
 from db_layer.db_factory import get_data_serice
@@ -39,10 +40,10 @@ async def is_time_to_publish(last_published_time, publish_frequency, status, new
                 if pub_date[0] == 'everyday':
                     if pub_time[0] == 'every--hour':
                         is_time = now - last_pub_time >= timedelta(hours=1)
-                    elif pub_time[0] == 'every-2-hour':
-                        is_time = now - last_pub_time >= timedelta(hours=2)
                     elif pub_time[0] == 'every-3-hour':
                         is_time = now - last_pub_time >= timedelta(hours=3)
+                    elif pub_time[0] == 'every-6-hour':
+                        is_time = now - last_pub_time >= timedelta(hours=6)
                     else:
                         if sended[0] == 0:
                             hour, minute = map(int, pub_time[0].split(':'))
@@ -56,10 +57,10 @@ async def is_time_to_publish(last_published_time, publish_frequency, status, new
                     if pub_date_obj <= now.date():
                         if pub_time[0] == 'every--hour':
                             is_time = now - last_pub_time >= timedelta(hours=1)
-                        elif pub_time[0] == 'every-2-hour':
-                            is_time = now - last_pub_time >= timedelta(hours=2)
                         elif pub_time[0] == 'every-3-hour':
                             is_time = now - last_pub_time >= timedelta(hours=3)
+                        elif pub_time[0] == 'every-6-hour':
+                            is_time = now - last_pub_time >= timedelta(hours=6)
                         else:
                             if sended[0] == 0:
                                 hour, minute = map(int, pub_time[0].split(':'))
@@ -81,6 +82,10 @@ async def is_time_to_publish(last_published_time, publish_frequency, status, new
     except Exception as e:
         print(f"Помилка під час перевірки часу публікації (ID {news_id}): {e}")
         return False
+<<<<<<< HEAD
+=======
+
+>>>>>>> menu
 
 
 async def time_check(bot):
@@ -174,7 +179,7 @@ async def publish_standart_news(db, bot, topic: str, channel: str, poll: str, po
 
 
 async def publish_picture_news(bot, topic: str, channel: str, poll: str, poll_text: str,
-                               user_id: str, topic_id: str, db: get_data_serice) -> None:
+                               user_id: str, topic_id: str, db: AsyncDatabase) -> None:
     try:
         news_path, topic_url = await get_image_news(topic=topic, channel=channel)
 

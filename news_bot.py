@@ -58,7 +58,6 @@ async def scheduled_news_publishing():
     та оновлення статусу 'sended', якщо настав новий день.
     """
     try:
-        logging.info("Starting news processing...")
         async with get_data_serice() as db:
             await db.create_db()
         bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
@@ -69,7 +68,6 @@ async def scheduled_news_publishing():
             if current_day != last_checked_day:
                 async with get_data_serice() as db:
                     await db.set_all_sended_status_false()
-                    logging.info(f"Статус 'sended' оновлено для нового дня: {current_day}")
 
                 last_checked_day = current_day
 
@@ -85,11 +83,6 @@ def start_scheduled_news_publishing():
     """Запуск функції публікації новин в окремому потоці."""
     asyncio.run(scheduled_news_publishing())
 
-async def health_check(request):
-    """
-    Responds with HTTP 200 to indicate the app is healthy.
-    """
-    return web.Response(status=200, text="Healthy")
 
 def main_bot():
     try:
@@ -102,11 +95,11 @@ def main_bot():
         app["bot"] = bot
         app.on_startup.append(on_startup)
         app.on_shutdown.append(on_shutdown)
-        app.router.add_get("/health", health_check)
 
         SimpleRequestHandler(dispatcher=dp, bot=bot).register(app, path=WEBHOOK_PATH)
         setup_application(app, dp, bot=bot)
 
+        logging.info(f"Server started at http://{WEB_SERVER_HOST}:{WEB_SERVER_PORT}")
         web.run_app(app, host=WEB_SERVER_HOST, port=WEB_SERVER_PORT)
 
     except Exception as e:

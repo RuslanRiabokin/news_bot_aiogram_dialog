@@ -28,7 +28,6 @@ class AzureSQLDatabase(AbstractDatabase):
         if self.connection:
             try:
                 self.connection.close()
-                logging.info("Azure SQL connection closed successfully.")
             except Exception as exc:
                 logging.error("Failed to close Azure SQL connection. Details: %s", exc, exc_info=True)
 
@@ -126,6 +125,5 @@ class AzureSQLDatabase(AbstractDatabase):
         try:
             for query in create_queries:
                 await self.execute(query)
-                logging.info(f"Executed query: {query[:50]}...")  # Логируем первые 50 символов запроса
         except Exception as exc:
             logging.error("Error creating tables in Azure SQL: %s", exc, exc_info=True)

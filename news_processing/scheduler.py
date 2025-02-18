@@ -1,8 +1,6 @@
 import asyncio
 from datetime import datetime, timedelta
-
 from aiogram import Bot
-
 from db_layer.db_factory import get_data_serice
 from news_processing.news_pre_publisher import time_check
 

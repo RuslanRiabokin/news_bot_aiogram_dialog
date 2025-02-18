@@ -1,6 +1,5 @@
-import html as ht
-
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
+import html as ht
 
 from db_layer.db_factory import get_data_serice
 

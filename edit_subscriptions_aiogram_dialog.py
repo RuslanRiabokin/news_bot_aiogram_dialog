@@ -1,49 +1,23 @@
 import logging
-
 from aiogram import F
 from aiogram.types import CallbackQuery
 from aiogram_dialog import Dialog, Window, DialogManager
 from aiogram_dialog.widgets.input import TextInput
-from aiogram_dialog.widgets.kbd import Button, Row, Group
+from aiogram_dialog.widgets.kbd import Button, Row, Group, Column
 from aiogram_dialog.widgets.text import Const, Format
 
-from custom_calendar import CustomCalendar, on_date_selected, selection_getter
-from db_layer.db_factory import get_data_serice
+from time_meneger import on_time_success, time_getter, date_getter, time_date_getter, date_selection_every_day, \
+    finish_date_selection, time_selection_every_hour
 from states_class_aiogram_dialog import EditSubscriptions, SecondDialogSG
 from subscription_list_aiogram_dialog import go_start
+from custom_calendar import CustomCalendar, on_date_selected, selection_getter
+#from database import AsyncDatabase
 from time_meneger import on_time_success, time_getter, date_getter, time_date_getter, date_selection_every_day, \
     finish_date_selection, time_selection_every_hour
 
 
+
 # Обробники дій з кнопками
-async def edit_publication_time(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
-    await callback.message.answer("🕒 Час публікації буде змінено.")
-
-
-async def pause_or_run_publication(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
-    sub_id = dialog_manager.dialog_data.get('item_id')
-    async with get_data_serice() as db:
-        sub_status = (await db.get_subscription_status(sub_id))[0]
-        dialog_manager.dialog_data['sub_status'] = sub_status
-        if sub_status == 'yes':
-            await db.set_subscription_status(status='pause', sub_id=sub_id)
-            await callback.message.answer("⏸ Публікацію призупинено.")
-        elif sub_status == 'pause':
-            await db.set_subscription_status(status='yes', sub_id=sub_id)
-            await callback.message.answer("▶ Публікація розпочата.")
-        else:
-            logging.error(f'Неправильний статус новини {sub_status}')
-            await callback.message.answer("Неправильний статус новини.")
-    await dialog_manager.switch_to(EditSubscriptions.edit)
-
-
-async def dialog_data_getter(dialog_manager: DialogManager, **kwargs):
-    """Передаёт статус публикации в данные для отображения кнопки."""
-    sub_id = dialog_manager.dialog_data.get('item_id')
-    sub_status = dialog_manager.dialog_data.get("sub_status")  # Статус по умолчанию
-    sub_status_text = ("Розпочати публікацію ▶" if sub_status == "yes" else "Призупинити публікацію ⏸")
-    return {"publication_status": sub_status, "publication_status_text": sub_status_text}
-
 
 async def add_poll(callback: CallbackQuery, button: Button, dialog_manager: DialogManager):
     await callback.message.answer("📊 Опитування додано.")
@@ -89,12 +63,12 @@ select_language_window = Window(
     Const("<b>Виберіть мову:</b>"),
     Group(
         Row(
-            Button(Const("Українська"), id="uk", on_click=on_language_selected),
-            Button(Const("English"), id="en", on_click=on_language_selected),
+            Button(Const("🇺🇦 Українська"), id="uk", on_click=on_language_selected),
+            Button(Const("🏴󠁧󠁢󠁥󠁮󠁧󠁿 English"), id="en", on_click=on_language_selected),
         ),
         Row(
-            Button(Const("Русский"), id="ru", on_click=on_language_selected),
-            Button(Const("Deutsch"), id="de", on_click=on_language_selected),
+            Button(Const("🇷🇺 Русский"), id="ru", on_click=on_language_selected),
+            Button(Const("🇩🇪 Deutsch"), id="de", on_click=on_language_selected),
         ),
     ),
     Button(Const("Назад"), id="back_to_edit", on_click=lambda c, b, d: d.switch_to(EditSubscriptions.edit)),
@@ -103,23 +77,18 @@ select_language_window = Window(
 
 # Головне вікно редагування підписки
 edit_subscription_window = Window(
-    Const("<b>Опції редагування підписки</b>\n"),
+    Const("<b>Опції редагування підписки:</b>\n"),
+    Button(Const("🕰 Час публікації"), id="change_time",
+           on_click=lambda c, b, d: d.switch_to(EditSubscriptions.edit_time)),
+    Button(Const("💬 Обрати мову"), id="select_language", on_click=select_language),
+    Button(Const("📊 Додати опитування"), id="add_poll", on_click=add_poll),
+    Button(Const("🐈 Вислати котика"), id="send_cat", on_click=send_cat),
     Row(
-        Button(Const("Редагувати час публікації 🕒"), id="change_time",
-               on_click=lambda c, b, d: d.switch_to(EditSubscriptions.edit_time)),
+        Button(Const('🗒 Мої підписки'), id='sub_list',
+           on_click=lambda c, b, d: d.switch_to(SecondDialogSG.second)),
+        Button(Const("🔙"), id="back_button", on_click=back_to_subscription_details),
     ),
-    Row(
-        Button(Format("{publication_status_text}"), id="pause_or_run_publication", on_click=pause_or_run_publication),
-        Button(Const("Додати опитування 📊"), id="add_poll", on_click=add_poll),
-    ),
-    Row(
-        Button(Const("Вибрати мову"), id="select_language", on_click=select_language),
-        Button(Const("Вислати котика 🐈"), id="send_cat", on_click=send_cat),
-    ),
-    Button(Const("Повернутись назад"), id="back_button", on_click=back_to_subscription_details),
-    Button(Const("Повернутися до початкового меню"), id="button_start", on_click=go_start),
     state=EditSubscriptions.edit,
-    getter=dialog_data_getter,
 )
 
 """# Об'єднання всіх вікон в один діалог
@@ -129,18 +98,17 @@ edit_subscription_dialog = Dialog(
 )"""
 
 edit_time_window = Window(
-    Const("<b>Редагування часу публікації:</b>"),
-    Format("\nSelected date: {date}", when=F["date"]),
-    Format("\nNo date selected", when=~F["date"]),
-    Format("\nSelected Time: {time}", when=F["time"]),
-    Format("\nNo time selected", when=~F["time"]),
+    Const("<b>Редагування часу публікації:\n</b>"),
+    Format("Обраний час: <b>{date} {time}</b>", when=F["date" or "time"]),
+    Format("Ви не обрали <b>дату</b>", when=~F["date"]),
+    Format("Ви не обрали <b>час</b>", when=~F["time"]),
     Row(
-        Button(Const("Обрати час публікації"), id="enter_time",
+        Button(Const("⏰ Час публікації"), id="enter_time",
                on_click=lambda c, b, d: d.switch_to(EditSubscriptions.edit_t_time)),
-        Button(Const("Обрати дату публікації"), id="enter_date",
+        Button(Const("📆 Дата публікації"), id="enter_date",
                on_click=lambda c, b, d: d.switch_to(EditSubscriptions.edit_d_time)),
     ),
-    Button(Const("Назад"), id="back_to_edit", on_click=lambda c, b, d: d.switch_to(EditSubscriptions.edit)),
+    Button(Const("🔙 Повернутися"), id="back_to_edit", on_click=lambda c, b, d: d.switch_to(EditSubscriptions.edit)),
     state=EditSubscriptions.edit_time,
     getter=time_date_getter
 )
@@ -154,55 +122,57 @@ calendar_window = Window(
         id="calendar",
         on_click=on_date_selected,
     ),
-    Button(Const("Завершити вибір"), id="finish", on_click=finish_date_selection),
-    Button(Const("Назад"), id="back_to_edit", on_click=lambda c, b, d: d.switch_to(EditSubscriptions.edit_d_time)),
+    Button(Const("✔️ Обрати"), id="finish", on_click=finish_date_selection),
+    Button(Const("🔙 Повернутися"), id="back_to_edit", on_click=lambda c, b, d: d.switch_to(EditSubscriptions.edit_d_time)),
     state=EditSubscriptions.calendar,
     getter=selection_getter
 )
 
 edit_d_time_window = Window(
     Const("<b>Редагування дат публікації:</b>"),
-    Format("\nSelected date: {date}", when=F["date"]),
-    Format("\nNo date selected", when=~F["date"]),
+    Format("\nОбрані дати: <b>{date}</b>", when=F["date"]),
+    Format("Ви не обрали <b>дату</b>", when=~F["date"]),
     Row(
-        Button(Const("Публікація кожен день"), id="every_day",
+        Button(Const("📅 Кожен день"), id="every_day",
                on_click=date_selection_every_day),
-        Button(Const("Обрати дату самому"), id="calendar",
+        Button(Const("👇 Обрати дату"), id="calendar",
                on_click=lambda c, b, d: d.switch_to(EditSubscriptions.calendar)),
     ),
-    Button(Const("Назад"), id="back_to_edit", on_click=lambda c, b, d: d.switch_to(EditSubscriptions.edit_time)),
+    Button(Const("🔙 Повернутися"), id="back_to_edit", on_click=lambda c, b, d: d.switch_to(EditSubscriptions.edit_time)),
     state=EditSubscriptions.edit_d_time,
     getter=date_getter
 )
 
 edit_t_time_window = Window(
-    Const("Виберіть час публікації:"),
-    Format("\nSelected Time: {time}", when=F["time"]),
-    Format("\nNo time selected", when=~F["time"]),
-    Row(
-        Button(Const("Кожну годину"), id="every_hour", on_click=lambda c, b, d: time_selection_every_hour(c, b, d, "")),
-        Button(Const("Кожні 2 години"), id="every_2_hours", on_click=lambda c, b, d: time_selection_every_hour(c, b, d, "2")),
-        Button(Const("Кожні 3 години"), id="every_3_hours", on_click=lambda c, b, d: time_selection_every_hour(c, b, d, "3")),
+    Const("<b>Виберіть час публікації:</b>"),
+    Format("\nОбраний час: <b>{time}</b>", when=F["time"]),
+    Format("\nВи не обрали <b>час</b>", when=~F["time"]),
+    Column(
+        Button(Const("🕐 Кожну годину"), id="every_hour", on_click=lambda c, b, d: time_selection_every_hour(c, b, d, "")),
+        Button(Const("🕒 Кожні 3 години"), id="every_3_hours",
+               on_click=lambda c, b, d: time_selection_every_hour(c, b, d, "3")),
+        Button(Const("🕕 Кожні 6 годин"), id="every_6_hours",
+               on_click=lambda c, b, d: time_selection_every_hour(c, b, d, "6")),
     ),
     Row(
-    Button(Const("Ввести час самому"), id="edit_time", on_click=lambda c, b, d: d.switch_to(EditSubscriptions.edit_time_write)),
+        Button(Const("✍️ Ввести час"), id="edit_time",
+               on_click=lambda c, b, d: d.switch_to(EditSubscriptions.edit_time_write)),
     ),
-    Button(Const("Назад"), id="back_to_edit", on_click=lambda c, b, d: d.switch_to(EditSubscriptions.edit_time)),
+    Button(Const("🔙 Повернутися"), id="back_to_edit", on_click=lambda c, b, d: d.switch_to(EditSubscriptions.edit_time)),
     state=EditSubscriptions.edit_t_time,
     getter=time_getter
 )
 
 edit_time_write_window = Window(
-    Const("Введіть час публікації:\n"
-      "Якщо хочете ввести кілька часів публікації,\n"
-      "<b>введіть у такому форматі 9.30 12.45</b>"),
-    Format("\nSelected Time: {time}", when=F["time"]),
-    Format("\nNo time selected", when=~F["time"]),
+    Const("<b>Введіть час публікації:</b>\n\n"
+          "Введіть у форматі '<b>9:30</b>' чи '<b>9:45, 13:15</b>'"),
+    Format("Обраний час: <b>{time}</b>", when=F["time"]),
+    Format("Ви не обрали <b>час</b>", when=~F["time"]),
     TextInput(
         id='news_input',
         on_success=on_time_success,
     ),
-    Button(Const("Назад"), id="back_to_edit", on_click=lambda c, b, d: d.switch_to(EditSubscriptions.edit_t_time)),
+    Button(Const("🔙 Повернутися"), id="back_to_edit", on_click=lambda c, b, d: d.switch_to(EditSubscriptions.edit_t_time)),
     state=EditSubscriptions.edit_time_write,
     getter=time_getter
 )

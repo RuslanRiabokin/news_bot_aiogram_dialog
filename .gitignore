@@ -9,3 +9,4 @@ pytest.ini*.pyc
 *.zip
 /azure.txt
 /app.
+*.pyc
