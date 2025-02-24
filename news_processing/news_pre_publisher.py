@@ -82,10 +82,7 @@ async def is_time_to_publish(last_published_time, publish_frequency, status, new
     except Exception as e:
         print(f"Помилка під час перевірки часу публікації (ID {news_id}): {e}")
         return False
-<<<<<<< HEAD
-=======
 
->>>>>>> menu
 
 
 async def time_check(bot):
