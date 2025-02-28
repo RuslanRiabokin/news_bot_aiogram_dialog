@@ -5,13 +5,24 @@ FROM python:3.11
 LABEL version="news_bot v1.0.0"
 LABEL description="Docker container for news_bot project version 1.0.0"
 
+# Устанавливаем переменные окружения для корректной кодировки
+ENV LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8 \
+    PYTHONIOENCODING=UTF-8
+
 # Устанавливаем рабочую директорию в контейнере
 WORKDIR /app
 
 # Копируем файлы проекта в контейнер
 COPY . .
 
-#Устанавливаем Node.js и npx для выполнения команды playwright
+# Устанавливаем локали
+RUN apt-get update && apt-get install -y locales && \
+    echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
+    echo "C.UTF-8 UTF-8" >> /etc/locale.gen && \
+    locale-gen
+
+# Устанавливаем Node.js и npx для выполнения команды playwright
 RUN apt-get update && apt-get install -y \
     curl apt-transport-https ca-certificates gnupg2 && \
     curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \

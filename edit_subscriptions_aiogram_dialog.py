@@ -1,4 +1,3 @@
-import logging
 from aiogram import F
 from aiogram.types import CallbackQuery
 from aiogram_dialog import Dialog, Window, DialogManager
@@ -6,15 +5,11 @@ from aiogram_dialog.widgets.input import TextInput
 from aiogram_dialog.widgets.kbd import Button, Row, Group, Column
 from aiogram_dialog.widgets.text import Const, Format
 
-from time_meneger import on_time_success, time_getter, date_getter, time_date_getter, date_selection_every_day, \
-    finish_date_selection, time_selection_every_hour
-from states_class_aiogram_dialog import EditSubscriptions, SecondDialogSG
-from subscription_list_aiogram_dialog import go_start
 from custom_calendar import CustomCalendar, on_date_selected, selection_getter
-#from database import AsyncDatabase
-from time_meneger import on_time_success, time_getter, date_getter, time_date_getter, date_selection_every_day, \
-    finish_date_selection, time_selection_every_hour
-
+from states_class_aiogram_dialog import EditSubscriptions, SecondDialogSG
+from time_meneger import (on_time_success, time_getter, date_getter, time_date_getter,
+                          date_selection_every_day,
+                          finish_date_selection, time_selection_every_hour)
 
 
 # Обробники дій з кнопками
@@ -58,6 +53,10 @@ async def back_to_subscription_details(callback: CallbackQuery, button: Button, 
     await dialog_manager.switch_to(SecondDialogSG.second)
 
 
+async def switch_to_subscriptions(c: CallbackQuery, b: Button, d: DialogManager):
+    await d.start(SecondDialogSG.first)  # Запускаем новое состояние
+
+
 # Вікно вибору мови
 select_language_window = Window(
     Const("<b>Виберіть мову:</b>"),
@@ -84,18 +83,13 @@ edit_subscription_window = Window(
     Button(Const("📊 Додати опитування"), id="add_poll", on_click=add_poll),
     Button(Const("🐈 Вислати котика"), id="send_cat", on_click=send_cat),
     Row(
-        Button(Const('🗒 Мої підписки'), id='sub_list',
-           on_click=lambda c, b, d: d.switch_to(SecondDialogSG.second)),
+Button(Const('🗒 Мої підписки'), id='sub_list', on_click=switch_to_subscriptions),
         Button(Const("🔙"), id="back_button", on_click=back_to_subscription_details),
     ),
     state=EditSubscriptions.edit,
 )
 
-"""# Об'єднання всіх вікон в один діалог
-edit_subscription_dialog = Dialog(
-    edit_subscription_window,
-    select_language_window,
-)"""
+
 
 edit_time_window = Window(
     Const("<b>Редагування часу публікації:\n</b>"),

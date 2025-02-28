@@ -209,7 +209,7 @@ class SQLDataService:
             WHERE user_id = ? AND (is_active = 'yes' OR is_active = 'pause')
         """
         try:
-            subscriptions = await self.db.fetchall(query, (user_id,))
+            subscriptions = await self.db.fetchall(query, (str(user_id),))
             return subscriptions
         except Exception as e:
             logging.error(f"Помилка отримання підписок: {e}")

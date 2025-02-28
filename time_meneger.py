@@ -46,15 +46,22 @@ async def on_time_success(message: Message, widget: ManagedTextInput,
                     "Формат має бути HH:MM (наприклад, '14:30' чи '14,30, 14:45')."
                 )
                 return
-        # Якщо час містить кому або інший неприпустимий знак, виправляємо
+        # Якщо час містить кому або інший неприпустимий знак (",", ".", ";"), виправляємо на ":"
         elif re.match(r"^\d{1,2}[^\d:]\d{2}$", time):
             time = time.replace(",", ":").replace(".", ":").replace(";", ":")
+
+            # Если часы указаны одной цифрой, дополняем до двух знаков
+            if re.match(r"^\d:\d{2}$", time):
+                hours, minutes = time.split(":")
+                time = f"{int(hours):02d}:{minutes}"
+
             if not re.match(time_pattern, time):
                 await message.answer(
                     "Ви ввели невірний формат часу."
                     "Формат має бути HH:MM (наприклад, '14:30' чи '14,30, 14:45')."
                 )
                 return
+
         # Якщо час не відповідає жодному формату
         elif not re.match(time_pattern, time):
             await message.answer(
