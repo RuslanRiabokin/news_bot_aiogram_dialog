@@ -1,5 +1,5 @@
-# Используем официальный Python образ
-FROM python:3.11
+# Используем официальный Python образ на Debian 11 (Bullseye)
+FROM python:3.11-bullseye
 
 # Указываем метаданные версии сборки
 LABEL version="news_bot v1.0.0"
@@ -22,24 +22,41 @@ RUN apt-get update && apt-get install -y locales && \
     echo "C.UTF-8 UTF-8" >> /etc/locale.gen && \
     locale-gen
 
-# Устанавливаем Node.js и npx для выполнения команды playwright
-RUN apt-get update && apt-get install -y \
-    curl apt-transport-https ca-certificates gnupg2 && \
-    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
-    echo "deb [arch=amd64] https://packages.microsoft.com/ubuntu/20.04/prod focal main" | tee /etc/apt/sources.list.d/mssql-release.list && \
-    curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
-    apt-get update && ACCEPT_EULA=Y apt-get install -y \
-        nodejs \
-        unixodbc \
-        unixodbc-dev \
-        msodbcsql18 && \
+# Добавляем репозиторий Microsoft и устанавливаем msodbcsql18
+RUN curl -sSL https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
+    curl -sSL https://packages.microsoft.com/config/debian/11/prod.list -o /etc/apt/sources.list.d/mssql-release.list && \
+    apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql18 unixodbc-dev && \
     rm -rf /var/lib/apt/lists/*
 
-# Устанавливаем зависимости из requirements.txt
+# Устанавливаем системные зависимости для Playwright
+RUN apt-get update && apt-get install -y \
+        curl \
+        apt-transport-https \
+        ca-certificates \
+        gnupg2 \
+        libnss3 \
+        libatk1.0-0 \
+        libatk-bridge2.0-0 \
+        libcups2 \
+        libdrm2 \
+        libxcomposite1 \
+        libxdamage1 \
+        libxrandr2 \
+        libgbm1 \
+        libasound2 \
+        libpangocairo-1.0-0 \
+        libpango-1.0-0 \
+        libgtk-3-0 \
+        libx11-xcb1 \
+        libxss1 \
+        libxtst6 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Устанавливаем Python-зависимости
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Устанавливаем playwright с зависимостями
-RUN npx playwright install --with-deps
+# Устанавливаем браузеры для Python Playwright
+RUN python -m playwright install --with-deps
 
 # Указываем команду для запуска бота
 CMD ["python", "-m", "news_bot"]

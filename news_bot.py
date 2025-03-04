@@ -20,6 +20,7 @@ from news_processing.news_pre_publisher import time_check
 async def set_bot_commands(bot: Bot):
     """Встановлює команди робота для меню."""
     commands = [
+        BotCommand(command="/instruction", description="Ознайомитись з інструкцією"),
         BotCommand(command="/start", description="Початок праці"),
         BotCommand(command="/menu", description="Меню Підписок"),
     ]
