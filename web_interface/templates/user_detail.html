@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>News for User {{ user_id }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>News for User ID: {{ user_id }}</h1>
+
+    {% if news %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Topic</th>
+                    <th>Channel</th>
+                    <th>Last Published</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in news %}
+                    <tr>
+                        <td>{{ item.topic_name }}</td>
+                        <td>{{ item.channel_name }}</td>
+                        <td>{{ item.last_pub_time }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No news available for this user.</p>
+    {% endif %}
+
+    <a href="{{ url_for('index') }}" class="back-link">Back to Users List</a>
+</body>
+</html>
